@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>JOVI | Hub de Assistentes da Câmera</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  /* Fonte oficial da marca JOVI Smartphones. */
+  @font-face {
+    font-family: 'JOVI Sans';
+    src: url('assets/fonts/JOVISans-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'JOVI Sans';
+    src: url('assets/fonts/JOVISans-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'JOVI Sans';
+    src: url('assets/fonts/JOVISans-Demibold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'JOVI Sans';
+    src: url('assets/fonts/JOVISans-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'JOVI Sans';
+    src: url('assets/fonts/JOVISans-Extrabold.woff2') format('woff2');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  /* Rede de segurança: se o conteúdo não couber por algum motivo,
+     preferimos permitir rolagem a cortar informação. */
+  html, body { overflow-y: auto; }
+
+  /* Tamanho/posição da moldura (largura, altura, escala do conteúdo) é
+     controlado via JavaScript (função layoutPhone), garantindo que a
+     moldura e o conteúdo escalado sempre batam exatamente — evita que
+     pequenas diferenças de arredondamento entre CSS e JS cortem parte
+     do conteúdo (ex: a barra de digitação) via overflow:hidden. */
+  .phone-shell {
+    width: 390px;
+    height: 844px;
+  }
+  .phone-screen {
+    width: 390px;
+    height: 844px;
+    transform-origin: top left;
+  }
+
+  /* Em telas de celular reais (estreitas), remove a moldura/escala e usa
+     100% da tela nativamente — evita bugs de foco/teclado em inputs
+     dentro de elementos com transform: scale(). */
+  @media (max-width: 480px) {
+    body { padding: 0 !important; }
+    #protoSwitcher, #protoCaption { display: none !important; }
+    html, body { height: 100%; margin: 0; }
+    .phone-shell {
+      width: 100vw !important;
+      height: 100dvh !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+    .phone-screen {
+      width: 100% !important;
+      height: 100% !important;
+      transform: none !important;
+      position: static !important;
+    }
+  }
+</style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center py-4 px-4 font-sans">
+
+  <!-- Seletor externo (apenas para demonstração/navegação entre telas do protótipo) -->
+  <div id="protoSwitcher" class="mb-3 flex items-center gap-2 bg-white/70 backdrop-blur px-2 py-2 rounded-full shadow-card">
+    <span class="text-xs text-jovi-gray pl-2 pr-1 hidden sm:inline">Protótipo:</span>
+    <button id="tabKai" onclick="switchAssistant('kai')" class="assistant-tab px-4 py-1.5 rounded-full text-sm font-semibold transition-colors">Kai</button>
+    <button id="tabMia" onclick="switchAssistant('mia')" class="assistant-tab px-4 py-1.5 rounded-full text-sm font-semibold transition-colors">Mia</button>
+  </div>
+
+  <!-- Phone frame -->
+  <div class="phone-shell relative rounded-[46px] overflow-hidden bg-jovi-bg">
+    <div id="phoneScreen" class="phone-screen absolute top-0 left-0">
+
+    <!-- Screen -->
+    <div class="relative w-full h-full flex flex-col">
+
+      <!-- Status bar -->
+      <div class="flex items-center justify-between px-6 pt-3 pb-1 text-jovi-ink text-[13px] font-semibold shrink-0">
+        <span id="clock">09:41</span>
+        <div class="flex items-center gap-1.5">
+          <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><rect x="0" y="7" width="3" height="5" rx="0.5" fill="#14142B"/><rect x="5" y="5" width="3" height="7" rx="0.5" fill="#14142B"/><rect x="10" y="3" width="3" height="9" rx="0.5" fill="#14142B"/><rect x="15" y="0" width="3" height="12" rx="0.5" fill="#14142B"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M8 10.5C8.55 10.5 9 10.05 9 9.5C9 8.95 8.55 8.5 8 8.5C7.45 8.5 7 8.95 7 9.5C7 10.05 7.45 10.5 8 10.5Z" fill="#14142B"/><path d="M5 7.5C5.8 6.65 6.85 6.2 8 6.2C9.15 6.2 10.2 6.65 11 7.5" stroke="#14142B" stroke-width="1.2" stroke-linecap="round"/><path d="M2.5 4.8C4 3.15 5.9 2.3 8 2.3C10.1 2.3 12 3.15 13.5 4.8" stroke="#14142B" stroke-width="1.2" stroke-linecap="round"/></svg>
+          <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.75" y="0.75" width="19.5" height="10.5" rx="2.5" stroke="#14142B" stroke-width="1"/><rect x="2" y="2" width="16.5" height="8" rx="1.5" fill="#14142B"/><rect x="21" y="4" width="2" height="4" rx="1" fill="#14142B"/></svg>
+        </div>
+      </div>
+
+      <!-- Header -->
+      <div class="flex items-center justify-between px-4 py-3 shrink-0">
+        <div class="flex items-center gap-2">
+          <button onclick="window.location.href='camera.html'" class="w-8 h-8 -ml-1 flex items-center justify-center rounded-full active:bg-black/5 transition-colors shrink-0" aria-label="Voltar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#14142B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+
+          <button onclick="openSwitcher()" class="flex items-center gap-2 active:opacity-70 transition-opacity">
+            <img id="hdrAvatar" src="assets/kai_avatar.png" class="w-9 h-9 rounded-full object-cover ring-2 ring-white shadow" />
+            <span id="hdrName" class="font-bold text-jovi-ink tracking-wide text-[15px]">KAI</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2L14.5 5.5L19 5L18 9.5L22 12L18 14.5L19 19L14.5 18.5L12 22L9.5 18.5L5 19L6 14.5L2 12L6 9.5L5 5L9.5 5.5L12 2Z" fill="#2F80ED"/><path d="M9.5 12L11 13.5L14.5 10" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+
+        <div class="relative">
+          <button onclick="toggleMenu()" class="w-9 h-9 flex items-center justify-center rounded-full active:bg-black/5 transition-colors" aria-label="Mais opções">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.8" fill="#14142B"/><circle cx="12" cy="12" r="1.8" fill="#14142B"/><circle cx="12" cy="19" r="1.8" fill="#14142B"/></svg>
+          </button>
+          <div id="dotMenu" class="hidden absolute right-0 top-11 w-52 bg-white rounded-2xl shadow-bubble py-2 z-30 animate-popIn origin-top-right">
+            <button class="w-full text-left px-4 py-2.5 text-sm text-jovi-ink hover:bg-jovi-bg transition-colors">Configurações</button>
+            <button class="w-full text-left px-4 py-2.5 text-sm text-jovi-ink hover:bg-jovi-bg transition-colors">Histórico de conversas</button>
+            <button class="w-full text-left px-4 py-2.5 text-sm text-jovi-ink hover:bg-jovi-bg transition-colors">Ajuda</button>
+            <div class="h-px bg-black/5 my-1"></div>
+            <button onclick="openSwitcher()" class="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors">Trocar assistente</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scrollable content -->
+      <div id="scrollArea" class="flex-1 overflow-y-auto no-scrollbar px-4 pb-3">
+
+        <!-- Hero -->
+        <div class="relative pt-1 pb-2">
+          <div class="absolute -z-10 left-1/2 -translate-x-1/2 top-2 w-56 h-56 rounded-full bg-jovi-purple/40 blur-2xl"></div>
+          <svg class="absolute left-2 top-4 w-4 h-4 text-jovi-purple animate-twinkle" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0l2.5 9.5L24 12l-9.5 2.5L12 24l-2.5-9.5L0 12l9.5-2.5L12 0z"/></svg>
+          <svg class="absolute right-10 top-24 w-3 h-3 text-jovi-purple animate-twinkle" style="animation-delay:.6s" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0l2.5 9.5L24 12l-9.5 2.5L12 24l-2.5-9.5L0 12l9.5-2.5L12 0z"/></svg>
+
+          <div class="flex items-end gap-3">
+            <img id="charImg" src="assets/kai_character.png" class="w-40 shrink-0 -mb-1 select-none pointer-events-none" draggable="false" />
+            <div id="greetingBubble" class="bubble-tail relative bg-white rounded-2xl rounded-bl-sm px-4 py-3.5 shadow-bubble">
+              <p class="text-jovi-ink font-bold text-[15px] leading-snug mb-1">Olá! <span class="inline-block">👋</span></p>
+              <p id="greetingText" class="text-jovi-ink text-[13.5px] leading-relaxed">Sou o Kai, seu assistente da câmera. Transformo sua câmera num hub inteligente, pronto para facilitar seu dia!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat log (mensagens dinâmicas aparecem aqui) -->
+        <div id="chatLog" class="flex flex-col gap-3 mb-3"></div>
+
+        <!-- Quick actions -->
+        <div id="actionList" class="flex flex-col gap-2.5 mb-3"></div>
+
+      </div>
+
+      <!-- Input bar -->
+      <div class="shrink-0 px-4 pb-5 pt-2">
+        <div class="flex items-center gap-2 bg-white rounded-full shadow-card pl-2 pr-2 py-2">
+          <button class="w-9 h-9 flex items-center justify-center rounded-full text-jovi-blue active:bg-jovi-bg transition-colors shrink-0" aria-label="Teclado">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="13" rx="2.5" stroke="#3457F5" stroke-width="1.8"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h8M16 14h2" stroke="#3457F5" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+          <input id="chatInput" type="text" placeholder="Pergunte ao Kai" autocomplete="off"
+            class="flex-1 min-w-0 bg-transparent outline-none text-[14px] text-jovi-ink placeholder:text-jovi-gray" />
+          <button id="micBtn" onclick="onMicOrSend()" class="w-10 h-10 flex items-center justify-center rounded-full bg-jovi-blue text-white shrink-0 transition-transform active:scale-90" aria-label="Enviar ou falar">
+            <svg id="micIcon" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 003-3V6a3 3 0 10-6 0v6a3 3 0 003 3z" fill="white"/><path d="M19 11a7 7 0 01-14 0M12 18v3" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom sheet: trocar assistente -->
+    <div id="sheetOverlay" class="hidden absolute inset-0 bg-black/40 z-40" onclick="closeSwitcher()"></div>
+    <div id="switcherSheet" class="hidden absolute left-0 right-0 bottom-0 bg-white rounded-t-3xl z-50 px-5 pt-3 pb-6 animate-sheetUp">
+      <div class="w-10 h-1.5 bg-black/10 rounded-full mx-auto mb-4"></div>
+      <p class="text-jovi-ink font-bold text-[15px] mb-3">Escolher assistente</p>
+      <button onclick="selectAssistant('kai')" class="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-jovi-bg transition-colors">
+        <img src="assets/kai_avatar.png" class="w-11 h-11 rounded-full object-cover ring-2 ring-white shadow" />
+        <div class="text-left">
+          <p class="font-semibold text-jovi-ink text-[14px]">Kai</p>
+          <p class="text-jovi-gray text-[12.5px]">Assistente de produtividade da câmera</p>
+        </div>
+      </button>
+      <button onclick="selectAssistant('mia')" class="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-jovi-bg transition-colors">
+        <img src="assets/mia_avatar.png" class="w-11 h-11 rounded-full object-cover ring-2 ring-white shadow" />
+        <div class="text-left">
+          <p class="font-semibold text-jovi-ink text-[14px]">Mia</p>
+          <p class="text-jovi-gray text-[12.5px]">Assistente criativa de fotografia</p>
+        </div>
+      </button>
+    </div>
+    </div>
+  </div>
+
+  <p id="protoCaption" class="text-jovi-gray text-xs mt-3 text-center max-w-[390px]">Protótipo de front-end — JOVI Hub de Assistentes · HTML, Tailwind CSS &amp; JavaScript</p>
+
+<script src="app.js"></script>
+</body>
+</html>

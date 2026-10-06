@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>JOVI InsightCam</title>
+
+    <!-- Tailwind CSS: utilitários de animação, foco e responsividade. -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Bootstrap: estrutura responsiva e componentes JavaScript. -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+    <!-- O CSS da JOVI vem por último para preservar a identidade visual. -->
+    <link rel="stylesheet" href="camera.css">
+</head>
+
+<body class="antialiased">
+
+    <main class="container-fluid min-vh-100 d-flex align-items-center justify-content-center p-0">
+
+        <div class="celular">
+
+            <div class="tela">
+
+                <!-- CÂMERA -->
+
+                <div class="zoom">
+                    <span class="bolinha"></span>
+                    <span class="bolinha"></span>
+
+                    <div class="zoom-1x text-white">1x</div>
+
+                    <span class="bolinha"></span>
+                    <span class="bolinha"></span>
+                </div>
+
+                <button class="botao-foto cursor-pointer">
+                    <img src="assets/click.svg" class="botao-foto-img" alt="Botão de Foto">
+                    <img src="assets/gravar.svg" class="botao-gravar-img" alt="Botão de gravar">
+                    <img src="assets/gravando.svg" class="botao-gravando-img" alt="Parar gravação">
+                </button>
+
+                <div class="barra-superior">
+
+                    <div class="icones-superiores">
+
+                        <img src="assets/flash.svg" class="icone-superior" id="flash" alt="Flash">
+                        <img src="assets/HDR.svg" class="icone-superior" alt="HDR">
+                        <img src="assets/proporcao.svg" class="icone-superior" alt="Proporção">
+                        <img src="assets/timer.svg" class="icone-superior" id="timer" alt="Temporizador">
+                        <img src="assets/ajustes.svg" class="icone-superior" alt="Configurações">
+
+                    </div>
+
+                    <div class="contador-video">00:00</div>
+
+                </div>
+
+                <button class="botao-assistentes cursor-pointer">
+                    <img src="assets/assistentes.svg" class="icone-assistentes" alt="Assistentes de IA">
+                    <img src="assets/X.svg" class="fechar-assistentes" alt="Fechar">
+                </button>
+
+                <img src="assets/camera-frontal.svg" class="camera-frontal rounded-full" alt="Câmera Frontal">
+
+                <img src="assets/cidade-noite.jpg" class="foto-fundo" alt="Imagem de fundo da câmera">
+
+                <div class="grade">
+                    <div class="linha vertical-1"></div>
+                    <div class="linha vertical-2"></div>
+                    <div class="linha horizontal-1"></div>
+                    <div class="linha horizontal-2"></div>
+                </div>
+
+                <div class="caixa-traducao">
+                    <div class="camada-traducao">
+                        <span>Tradução</span>
+                    </div>
+
+                    <div class="camada-resultado">
+                        <strong>Sentido único</strong>
+                        <img src="assets/copiar.svg" class="copiar-traducao" alt="Copiar tradução">
+                    </div>
+                </div>
+
+                <div class="idiomas-traducao">
+                    <span>Inglês</span>
+                    <img src="assets/trocar-idioma.svg" class="trocar-idioma" alt="Trocar idioma">
+                    <span>Português</span>
+                </div>
+
+                <img src="assets/idioma.svg" class="icone-idioma" alt="Idioma">
+
+                <div class="modos">
+
+                    <div class="lista-modos">
+
+                        <div class="modo modo-noite">
+                            <span>Noite</span>
+                            <img src="assets/Sparkles.svg" alt="">
+                        </div>
+
+                        <span class="modo">Retrato</span>
+                        <span class="modo selecionado">Foto</span>
+                        <span class="modo">Vídeo</span>
+                        <span class="modo">Traduzir</span>
+                        <span class="modo">Mais</span>
+
+                    </div>
+                </div>
+
+
+                <img src="assets/galeria.jpg" class="miniatura-galeria" alt="Miniatura da galeria">
+
+                <img src="assets/trocar-camera.svg" class="trocar-camera" alt="Trocar câmera">
+
+                <img src="assets/pause.svg" class="botao-pause" alt="Pausar">
+
+                <img src="assets/pausado.svg" class="botao-pausado" alt="Continuar">
+
+                <img src="assets/click.svg" class="botao-foto-pequeno" alt="Tirar foto">
+
+
+                <!-- POP-UP ASSISTENTES MIA E KAI -->
+
+                <section class="convites-ia" aria-label="Convites da assistente Mia">
+                    <button class="convite-ia convite-superior transition-transform duration-200" type="button">
+                        <img src="assets/mia-popup.png" alt="Mia, assistente virtual da JOVI">
+                        <span class="convite-conteudo">
+                            <span>Oi, eu sou a Mia, sua assistente virtual!</span>
+                            <strong>Como posso te ajudar?</strong>
+                            <span class="convite-link">Clique aqui</span>
+                        </span>
+                    </button>
+
+                    <button class="convite-ia convite-inferior transition-transform duration-200" type="button">
+                        <span class="convite-conteudo">
+                            <strong>Quer uma foto ainda melhor?</strong>
+                            <small>Receba dicas personalizadas de luz, enquadramento e poses.</small>
+                        </span>
+                        <span class="convite-link">Pedir ajuda ✦</span>
+                    </button>
+                </section>
+
+                <section class="selecao-assistente" aria-hidden="true">
+                    <header class="selecao-cabecalho d-flex align-items-center">
+                        <button class="voltar-camera" type="button" aria-label="Voltar para a câmera">‹</button>
+                        <div>
+                            <strong>Escolha seu assistente</strong>
+                            <span>Toque em um personagem para conhecer</span>
+                        </div>
+                    </header>
+
+                    <div class="personagens">
+                        <button
+                            class="personagem-card transition-all duration-300 focus-visible:outline-2 focus-visible:outline-blue-400"
+                            type="button" data-personagem="Kai" aria-pressed="false">
+                            <span class="selo-selecao">✓</span>
+                            <div class="personagem-imagem">
+                                <img src="assets/kai-card-sem-texto.png" alt="Kai, Smart Life AI">
+                                <span class="nome-sobre-imagem"><strong>Kai</strong><small>Smart Life AI</small></span>
+                            </div>
+                            <span class="falar-personagem">Falar com Kai ›</span>
+                            <ul>
+                                <li><b>▰</b><span><strong>Organizador Inteligente</strong><small>Pastas automáticas,
+                                            eventos, locais e limpeza de arquivos</small></span></li>
+                                <li><b>▤</b><span><strong>Digitalização &amp; PDF</strong><small>Scanner, OCR,
+                                            assinatura, conversão e resumo</small></span></li>
+                                <li><b>⌯</b><span><strong>Compartilhamento IA</strong><small>Sugere onde enviar,
+                                            comprime, cria links e muito mais</small></span></li>
+                                <li><b>✦</b><span><strong>Assistente Pessoal</strong><small>Sugestões, otimização,
+                                            duplicatas e mais</small></span></li>
+                            </ul>
+                        </button>
+
+                        <button
+                            class="personagem-card transition-all duration-300 focus-visible:outline-2 focus-visible:outline-blue-400"
+                            type="button" data-personagem="Mia" aria-pressed="false">
+                            <span class="selo-selecao">✓</span>
+                            <div class="personagem-imagem">
+                                <img src="assets/mia-card-sem-texto.png" alt="Mia, Creative Vision AI">
+                                <span class="nome-sobre-imagem"><strong>Mia</strong><small>Creative Vision
+                                        AI</small></span>
+                            </div>
+                            <span class="falar-personagem">Falar com Mia ›</span>
+                            <ul>
+                                <li><b>◉</b><span><strong>Fotografia Inteligente</strong><small>Enquadramento, ângulos,
+                                            poses e luz</small></span></li>
+                                <li><b>▶</b><span><strong>Vídeo &amp; Conteúdo</strong><small>Movimentos, transições,
+                                            dicas para reels e muito mais</small></span></li>
+                                <li><b>◉</b><span><strong>Estética &amp; Mood</strong><small>Filtros, cores, estilos e
+                                            atmosferas</small></span></li>
+                                <li><b>▥</b><span><strong>Assistente Social Media</strong><small>Performance, capas,
+                                            melhores horários e sugestões</small></span></li>
+                                <li><b>✦</b><span><strong>Modo Diretor</strong><small>Mia guia você em tempo real como
+                                            uma diretora virtual</small></span></li>
+                            </ul>
+                        </button>
+                    </div>
+
+                    <div class="confirmacao-personagem backdrop-blur-md">
+                        <span>Você escolheu <strong></strong></span>
+                        <button type="button">Confirmar personagem</button>
+                    </div>
+
+                    <div class="confirmado" role="status">
+                        <strong></strong>
+                        <span>Seu assistente está pronto para ajudar.</span>
+                        <button type="button">Ir para o chat</button>
+                    </div>
+
+            </div>
+
+        </div>
+
+        </section>
+
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script src="camera.js"></script>
+
+</body>
+
+</html>

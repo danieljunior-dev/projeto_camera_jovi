@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memórias</title>
+
+  <!-- Bootstrap CSS (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- CSS próprio, carregado depois do Bootstrap para poder sobrescrever o tema -->
+  <link rel="stylesheet" href="galeria.css">
+
+  <!-- ===================== TRANSIÇÕES SUAVES (versão segura) ===================== -->
+  <!-- Não mexe em position/overflow/display das páginas — só anima a entrada
+       da página que ganha a classe "active", e dá um feedback suave de toque
+       nos botões/cards. Isso preserva o scroll interno e o layout original
+       controlados pelo galeria.css / galeria.js. -->
+  <style>
+    .page.active {
+      animation: pageFadeIn 0.32s ease;
+    }
+    @keyframes pageFadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Modais: transição um pouco mais suave que o padrão do Bootstrap */
+    .modal.fade .modal-dialog {
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    .modal.show .modal-dialog {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    /* Botões e cards clicáveis: feedback suave ao toque/hover */
+    .ver-tudo,
+    .hero-card,
+    .mini-card,
+    .reviver-card,
+    .suggest-card,
+    .circle-btn,
+    .rev-play,
+    .play-btn,
+    .bottom-nav button {
+      transition: transform 0.18s ease, opacity 0.18s ease;
+    }
+    .ver-tudo:active,
+    .hero-card:active,
+    .mini-card:active,
+    .reviver-card:active,
+    .suggest-card:active,
+    .circle-btn:active,
+    .rev-play:active,
+    .play-btn:active,
+    .bottom-nav button:active {
+      transform: scale(0.94);
+      opacity: 0.85;
+    }
+
+    /* Botão de voltar da página Memórias (volta para a câmera):
+       transição suave de escala, opacidade e um leve highlight de fundo. */
+    #backToCameraBtn {
+      transition: transform 0.22s ease, opacity 0.22s ease, background-color 0.22s ease;
+      border-radius: 50%;
+      padding: 6px;
+    }
+    #backToCameraBtn:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+    #backToCameraBtn:active {
+      transform: scale(0.88);
+      opacity: 0.8;
+      background-color: rgba(255, 255, 255, 0.16);
+    }
+
+    /* Botão circular da página Explorar (Ver Tudo -> volta para a câmera):
+       mesma lógica de transição suave, com highlight próprio. */
+    #circleToCameraBtn {
+      transition: transform 0.22s ease, opacity 0.22s ease, background-color 0.22s ease;
+      border-radius: 50%;
+      padding: 6px;
+    }
+    #circleToCameraBtn:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+    #circleToCameraBtn:active {
+      transform: scale(0.88);
+      opacity: 0.8;
+      background-color: rgba(255, 255, 255, 0.16);
+    }
+
+    /* ===================== HOVER NAS FOTOS ===================== */
+    /* Grid "Hoje / Ontem / Este Mês" na página Explorar */
+    .photo-item {
+      overflow: hidden;
+      transition: transform 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+    .photo-item:hover {
+      transform: scale(1.06);
+      filter: brightness(1.12);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      z-index: 2;
+    }
+
+    /* Card de destaque (Fim de semana) e mini-cards (Jantar/Viagem) */
+    .hero-card,
+    .mini-card {
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hero-card:hover,
+    .mini-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Cards do carrossel "Reviver" (2024 / Momentos / árvore) */
+    .reviver-card {
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .reviver-card:hover {
+      transform: scale(1.04);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Foto de capa da página de Detalhe */
+    .detail-hero {
+      transition: filter 0.3s ease;
+    }
+    .detail-hero:hover {
+      filter: brightness(1.05);
+    }
+
+    /* Avatar de perfil no topo */
+    .avatar {
+      transition: transform 0.25s ease;
+    }
+    .avatar:hover {
+      transform: scale(1.08);
+    }
+
+    /* Avatares empilhados (participantes) e mini-avatares na página de detalhe */
+    .avatar-stack img,
+    .mini-avatars img {
+      transition: transform 0.25s ease, z-index 0s;
+      cursor: pointer;
+    }
+    .avatar-stack img:hover,
+    .mini-avatars img:hover {
+      transform: scale(1.18);
+      z-index: 3;
+      position: relative;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="phone">
+
+    <!-- ===================== PAGE 1: Memórias ===================== -->
+    <div class="page active" id="page-memorias">
+      <div class="screen">
+
+        <!-- Status bar -->
+        <div class="status-bar">
+          <span>10:40</span>
+          <div class="camera-notch"></div>
+          <div class="status-icons">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+              <rect x="0" y="7" width="3" height="5" rx="0.5" fill="#fff" />
+              <rect x="5" y="5" width="3" height="7" rx="0.5" fill="#fff" />
+              <rect x="10" y="2" width="3" height="10" rx="0.5" fill="#fff" />
+              <rect x="15" y="0" width="3" height="12" rx="0.5" fill="#fff" />
+            </svg>
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+              <path
+                d="M8 10.5C8.6 10.5 9.1 10 9.1 9.4C9.1 8.8 8.6 8.3 8 8.3C7.4 8.3 6.9 8.8 6.9 9.4C6.9 10 7.4 10.5 8 10.5Z"
+                fill="#fff" />
+              <path d="M4.5 7C5.5 6 6.7 5.5 8 5.5C9.3 5.5 10.5 6 11.5 7" stroke="#fff" stroke-width="1.3"
+                stroke-linecap="round" />
+              <path d="M1.8 4.2C3.5 2.6 5.7 1.7 8 1.7C10.3 1.7 12.5 2.6 14.2 4.2" stroke="#fff" stroke-width="1.3"
+                stroke-linecap="round" />
+            </svg>
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
+              <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="#fff" opacity=".5" />
+              <rect x="2" y="2" width="18" height="8" rx="1.5" fill="#fff" />
+              <rect x="22.5" y="4" width="1.5" height="4" rx="0.7" fill="#fff" opacity=".5" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Header -->
+        <div class="app-header d-flex align-items-center justify-content-between">
+          <div class="title-block d-flex align-items-center gap-3">
+            <div class="logo-orb"></div>
+            <div>
+              <h1 class="mb-0">Memórias</h1>
+              <p class="mb-0">colecione momentos, conte histórias</p>
+            </div>
+          </div>
+          <img class="avatar rounded-circle" src="fotos/foto_avatar.jpg" alt="Perfil">
+        </div>
+
+        <!-- Tabs (Bootstrap nav-pills) -->
+        <ul class="nav nav-pills tabs gap-2">
+          <li class="nav-item"><button type="button" class="nav-link tab active">Destaques</button></li>
+          <li class="nav-item"><button type="button" class="nav-link tab">Recentes</button></li>
+          <li class="nav-item"><button type="button" class="nav-link tab">Pessoas</button></li>
+          <li class="nav-item"><button type="button" class="nav-link tab">Lugares</button></li>
+        </ul>
+
+        <!-- Content -->
+        <div class="content">
+
+          <!-- Hero -->
+          <div class="hero-card" onclick="showPage('page-detalhe')" style="cursor:pointer;">
+            <video class="inline-video" id="heroVideo" muted playsinline
+              onclick="event.stopPropagation(); toggleInline(this)"></video>
+            <div class="hero-text">
+              <h2>Fim de semana</h2>
+              <div class="location">Guarujá - SP</div>
+              <div class="date">25 - 26 de Abril</div>
+            </div>
+            <div class="hero-footer d-flex align-items-center justify-content-between">
+              <div class="avatar-stack">
+                <img src="fotos/foto_avatar2.png" alt="Perfil">
+                <img src="fotos/foto_avatar3.png" alt="Perfil">
+                <img src="fotos/foto_avatar4.png" alt="Perfil">
+                <div class="more">+7</div>
+              </div>
+              <button class="play-btn" id="heroPlayBtn"
+                onclick="event.stopPropagation(); playInline('heroVideo','heroPlayBtn','fotos/video_praia.mp4')"
+                aria-label="Reproduzir vídeo">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="#fff">
+                  <path d="M2 1.5L12 7L2 12.5V1.5Z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Two up (Bootstrap grid: row/col) -->
+          <div class="row g-3 grid-2">
+            <div class="col-6">
+              <div class="mini-card card-dinner">
+                <div class="mini-text">
+                  <h3>Jantar em Família</h3>
+                  <p>23 de Abril</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="mini-card card-trip">
+                <div class="mini-text">
+                  <h3>Viagem</h3>
+                  <p>Cunha - SP</p>
+                  <p>3 - 6 de Abril</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reviver -->
+          <div class="section-head d-flex align-items-end justify-content-between">
+            <div>
+              <h3 class="mb-0">Reviver</h3>
+              <div class="sub">Capture hoje. Reviva sempre</div>
+            </div>
+            <button class="ver-tudo" onclick="showPage('page-explorar')">Ver Tudo</button>
+          </div>
+
+          <div class="reviver-row d-flex gap-3">
+            <div class="reviver-card card-2024">
+              <video class="inline-video" id="revVideo2024" muted playsinline onclick="toggleInline(this)"></video>
+              <div class="rev-text">
+                <h4>2024</h4>
+                <p>Um ano inesquecível</p>
+              </div>
+              <button class="rev-play" id="revBtn2024"
+                onclick="playInline('revVideo2024','revBtn2024','fotos/2024_video.mp4')"
+                aria-label="Reproduzir vídeo">
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="#fff">
+                  <path d="M2 1.5L12 7L2 12.5V1.5Z" />
+                </svg>
+              </button>
+            </div>
+            <div class="reviver-card card-moments">
+              <video class="inline-video" id="revVideoMoments" muted playsinline onclick="toggleInline(this)"></video>
+              <div class="rev-text">
+                <h4>Momentos</h4>
+                <p>Em São Paulo</p>
+              </div>
+              <button class="rev-play" id="revBtnMoments"
+                onclick="playInline('revVideoMoments','revBtnMoments','fotos/video_momentos.mp4')"
+                aria-label="Reproduzir vídeo">
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="#fff">
+                  <path d="M2 1.5L12 7L2 12.5V1.5Z" />
+                </svg>
+              </button>
+            </div>
+            <div class="reviver-card small card-tree"></div>
+          </div>
+
+        </div>
+
+        <!-- Bottom nav -->
+        <div class="bottom-nav">
+          <svg width="22" height="16" viewBox="0 0 22 16" fill="none">
+            <rect x="0" y="0" width="22" height="2.2" rx="1.1" fill="#fff" />
+            <rect x="0" y="6.9" width="22" height="2.2" rx="1.1" fill="#fff" />
+            <rect x="0" y="13.8" width="22" height="2.2" rx="1.1" fill="#fff" />
+          </svg>
+         <button id="backToCameraBtn" onclick="window.location.href='camera.html'" aria-label="Voltar para a câmera" style="background:none;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="10" r="8.5" stroke="#fff" stroke-width="1.6" />
+            </svg>
+          </button>
+          <!-- Botão de voltar: navega de volta para a câmera, com transição suave -->
+          <button id="backToCameraBtn" onclick="window.location.href='camera.html'" aria-label="Voltar para a câmera" style="background:none;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+            <svg width="12" height="18" viewBox="0 0 12 18" fill="none">
+              <path d="M10 1L2 9L10 17" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===================== PAGE 2: Explorar ===================== -->
+    <div class="page" id="page-explorar">
+      <div class="screen">
+
+        <!-- Status bar -->
+        <div class="status-bar">
+          <span>10:40</span>
+          <div class="camera-notch"></div>
+          <div class="status-icons">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+              <rect x="0" y="7" width="3" height="5" rx="0.5" fill="#fff" />
+              <rect x="5" y="5" width="3" height="7" rx="0.5" fill="#fff" />
+              <rect x="10" y="2" width="3" height="10" rx="0.5" fill="#fff" />
+              <rect x="15" y="0" width="3" height="12" rx="0.5" fill="#fff" />
+            </svg>
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+              <path
+                d="M8 10.5C8.6 10.5 9.1 10 9.1 9.4C9.1 8.8 8.6 8.3 8 8.3C7.4 8.3 6.9 8.8 6.9 9.4C6.9 10 7.4 10.5 8 10.5Z"
+                fill="#fff" />
+              <path d="M4.5 7C5.5 6 6.7 5.5 8 5.5C9.3 5.5 10.5 6 11.5 7" stroke="#fff" stroke-width="1.3"
+                stroke-linecap="round" />
+              <path d="M1.8 4.2C3.5 2.6 5.7 1.7 8 1.7C10.3 1.7 12.5 2.6 14.2 4.2" stroke="#fff" stroke-width="1.3"
+                stroke-linecap="round" />
+            </svg>
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
+              <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="#fff" opacity=".5" />
+              <rect x="2" y="2" width="18" height="8" rx="1.5" fill="#fff" />
+              <rect x="22.5" y="4" width="1.5" height="4" rx="0.7" fill="#fff" opacity=".5" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Header -->
+        <div class="explore-header">
+          <h1>Explorar</h1>
+          <div class="explore-controls d-flex align-items-center justify-content-between">
+            <ul class="nav nav-pills explore-tabs gap-2">
+              <li class="nav-item"><button type="button" class="nav-link tab active">Tudo</button></li>
+              <li class="nav-item"><button type="button" class="nav-link tab">Fotos</button></li>
+              <li class="nav-item"><button type="button" class="nav-link tab">Videos</button></li>
+            </ul>
+            <button class="search-btn">
+              <svg width="19" height="19" viewBox="0 0 19 19" fill="none">
+                <circle cx="8.5" cy="8.5" r="6.5" stroke="#fff" stroke-width="1.6" />
+                <path d="M17 17L13.4 13.4" stroke="#fff" stroke-width="1.6" stroke-linecap="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Hoje -->
+        <div class="explore-section">
+          <div class="label">Hoje</div>
+          <div class="row row-cols-4 g-2 photo-grid">
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto1.jpg);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto2.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto3.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto4.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto5.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto6.png);">
+                <span class="badge">1:28</span>
+              </div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto7.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto8.png);"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ontem -->
+        <div class="explore-section">
+          <div class="label">Ontem</div>
+          <div class="row row-cols-4 g-2 photo-grid">
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto9.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto10.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto11.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto12.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto13.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto14.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto15.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto16.png);"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Este Mês -->
+        <div class="explore-section">
+          <div class="label">Este Mês</div>
+          <div class="row row-cols-4 g-2 photo-grid">
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto17.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto18.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto19.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto20.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto21.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto22.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto23.png);"></div>
+            </div>
+            <div class="col">
+              <div class="photo-item" style="background-image:url(fotos/foto24.png);"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom nav -->
+        <div class="bottom-nav">
+
+          <svg width="22" height="16" viewBox="0 0 22 16" fill="none">
+            <rect x="0" y="0" width="22" height="2.2" rx="1.1" fill="#fff" />
+            <rect x="0" y="6.9" width="22" height="2.2" rx="1.1" fill="#fff" />
+            <rect x="0" y="13.8" width="22" height="2.2" rx="1.1" fill="#fff" />
+          </svg>
+
+          <!-- Botão circular: volta direto para a câmera, com transição suave -->
+          <button id="circleToCameraBtn" onclick="window.location.href='camera.html'" aria-label="Voltar para a câmera">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="10" r="8.5" stroke="#fff" stroke-width="1.6" />
+            </svg>
+          </button>
+
+          <!-- Botão de voltar: retorna para a página de Memórias -->
+          <button onclick="showPage('page-memorias')" aria-label="Voltar para Memórias">
+            <svg width="12" height="18" viewBox="0 0 12 18" fill="none">
+              <path d="M10 1L2 9L10 17" stroke="#fff" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===================== PAGE 3: Detalhe da foto ===================== -->
+    <div class="page" id="page-detalhe">
+      <div class="screen">
+
+        <!-- Foto de capa com status bar e botões flutuantes -->
+        <div class="detail-hero" style="background-image:url(fotos/foto_principal.png);">
+          <div class="status-bar">
+            <span>10:40</span>
+            <div class="camera-notch"></div>
+            <div class="status-icons">
+              <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+                <rect x="0" y="7" width="3" height="5" rx="0.5" fill="#fff" />
+                <rect x="5" y="5" width="3" height="7" rx="0.5" fill="#fff" />
+                <rect x="10" y="2" width="3" height="10" rx="0.5" fill="#fff" />
+                <rect x="15" y="0" width="3" height="12" rx="0.5" fill="#fff" />
+              </svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                <path
+                  d="M8 10.5C8.6 10.5 9.1 10 9.1 9.4C9.1 8.8 8.6 8.3 8 8.3C7.4 8.3 6.9 8.8 6.9 9.4C6.9 10 7.4 10.5 8 10.5Z"
+                  fill="#fff" />
+                <path d="M4.5 7C5.5 6 6.7 5.5 8 5.5C9.3 5.5 10.5 6 11.5 7" stroke="#fff" stroke-width="1.3"
+                  stroke-linecap="round" />
+                <path d="M1.8 4.2C3.5 2.6 5.7 1.7 8 1.7C10.3 1.7 12.5 2.6 14.2 4.2" stroke="#fff" stroke-width="1.3"
+                  stroke-linecap="round" />
+              </svg>
+              <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
+                <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="#fff" opacity=".5" />
+                <rect x="2" y="2" width="18" height="8" rx="1.5" fill="#fff" />
+                <rect x="22.5" y="4" width="1.5" height="4" rx="0.7" fill="#fff" opacity=".5" />
+              </svg>
+            </div>
+          </div>
+
+          <div class="detail-topbar d-flex align-items-center justify-content-between">
+            <button class="circle-btn" onclick="showPage('page-memorias')" aria-label="Voltar">
+              <svg width="9" height="15" viewBox="0 0 12 18" fill="none">
+                <path d="M10 1L2 9L10 17" stroke="#fff" stroke-width="1.8" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+            </button>
+            <div class="right-group d-flex gap-2">
+              <button class="circle-btn liked" id="likeBtn" onclick="toggleLike(this)" aria-label="Favoritar">
+                <svg width="16" height="16" viewBox="0 0 20 18" fill="#ff3b5c">
+                  <path
+                    d="M10 17.5C10 17.5 1.5 12.4 1.5 6.3C1.5 3.4 3.7 1.5 6.3 1.5C7.9 1.5 9.2 2.3 10 3.5C10.8 2.3 12.1 1.5 13.7 1.5C16.3 1.5 18.5 3.4 18.5 6.3C18.5 12.4 10 17.5 10 17.5Z" />
+                </svg>
+              </button>
+              <button class="circle-btn" aria-label="Mais opções">
+                <svg width="16" height="16" viewBox="0 0 20 6" fill="#fff">
+                  <circle cx="2.5" cy="3" r="2" />
+                  <circle cx="10" cy="3" r="2" />
+                  <circle cx="17.5" cy="3" r="2" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conteúdo -->
+        <div class="detail-content">
+          <div class="detail-drag"></div>
+
+          <div class="detail-title-row d-flex align-items-start justify-content-between">
+            <div>
+              <h1>Praia do Félix</h1>
+              <div class="detail-date">25 - Abril</div>
+            </div>
+            <button class="detail-edit">Editar Foto</button>
+          </div>
+
+          <div class="row g-2 detail-info-row">
+            <div class="col-4">
+              <div class="detail-info-card">
+                <span class="info-icon">📍</span>
+                <span class="info-label">Localização</span>
+                <span class="info-value">Guarujá - SP</span>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="detail-info-card">
+                <span class="info-label">Pessoas</span>
+                <div class="mini-avatars">
+                  <img src="fotos/foto_avatar2.png" alt="avatar">
+                  <img src="fotos/foto_avatar3.png" alt="avatar">
+                  <img src="fotos/foto_avatar4.png" alt="avatar">
+                </div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="detail-info-card">
+                <span class="info-icon">☀️</span>
+                <span class="info-label">Clima</span>
+                <span class="info-value">15º Fim de Tarde</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section-label">Sugestões</div>
+
+          <div class="row g-2 detail-suggest-grid">
+            <div class="col-6">
+              <button class="suggest-card w-100">
+                <span class="suggest-icon">✨</span>
+                <span class="suggest-title">Melhorar Foto com IA</span>
+                <span class="suggest-sub">Realce sua Foto</span>
+              </button>
+            </div>
+            <div class="col-6">
+              <button class="suggest-card w-100">
+                <span class="suggest-icon">🔗</span>
+                <span class="suggest-title">Compartilhar</span>
+                <span class="suggest-sub">Com 3 Pessoas</span>
+                <div class="mini-avatars">
+                  <img src="fotos/foto_avatar2.png" alt="avatar">
+                  <img src="fotos/foto_avatar3.png" alt="avatar">
+                  <img src="fotos/foto_avatar4.png" alt="avatar">
+                </div>
+              </button>
+            </div>
+            <div class="col-6">
+              <button class="suggest-card w-100">
+                <span class="suggest-icon">🖼️</span>
+                <span class="suggest-title">Criar álbum</span>
+                <span class="suggest-sub">Praia do Félix</span>
+              </button>
+            </div>
+            <div class="col-6">
+              <button class="suggest-card w-100">
+                <span class="suggest-icon">🎬</span>
+                <span class="suggest-title">Montar vídeo</span>
+                <span class="suggest-sub">Com músicas</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="row g-2 detail-actions">
+            <div class="col-6">
+              <button
+                class="btn btn-outline-light detail-action-btn w-100 d-flex align-items-center justify-content-center gap-2">
+                <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+                  <path d="M10 13V3M10 3L6 7M10 3L14 7" stroke="#fff" stroke-width="1.6" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                  <path d="M4 13V16C4 16.5523 4.44772 17 5 17H15C15.5523 17 16 16.5523 16 16V13" stroke="#fff"
+                    stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Compartilhar
+              </button>
+            </div>
+            <div class="col-6">
+              <button
+                class="btn btn-outline-light detail-action-btn w-100 d-flex align-items-center justify-content-center gap-2"
+                onclick="deletePhoto()">
+                <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+                  <path d="M4 6H16" stroke="#fff" stroke-width="1.6" stroke-linecap="round" />
+                  <path d="M8 6V4C8 3.44772 8.44772 3 9 3H11C11.5523 3 12 3.44772 12 4V6" stroke="#fff"
+                    stroke-width="1.6" />
+                  <path d="M5.5 6L6.2 16C6.24 16.55 6.7 17 7.25 17H12.75C13.3 17 13.76 16.55 13.8 16L14.5 6"
+                    stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Excluir Foto
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom nav -->
+        <div class="bottom-nav">
+
+          <svg width="22" height="16" viewBox="0 0 22 16" fill="none">
+            <rect x="0" y="0" width="22" height="2.2" rx="1.1" fill="#fff" />
+            <rect x="0" y="6.9" width="22" height="2.2" rx="1.1" fill="#fff" />
+            <rect x="0" y="13.8" width="22" height="2.2" rx="1.1" fill="#fff" />
+          </svg>
+
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="8.5" stroke="#fff" stroke-width="1.6" />
+          </svg>
+
+          <button onclick="window.location.href='camera.html'" aria-label="Voltar para a câmera">
+            <svg width="12" height="18" viewBox="0 0 12 18" fill="none">
+              <path d="M10 1L2 9L10 17" stroke="#fff" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===================== Modal de vídeo em tela cheia (Bootstrap Modal) ===================== -->
+    <div class="modal fade modal-in-phone" id="videoModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-video-dialog">
+        <div class="modal-content">
+          <button type="button" class="video-close" data-bs-dismiss="modal" aria-label="Fechar vídeo">&#10005;</button>
+          <video id="videoPlayer" class="w-100" playsinline controls></video>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== Modal de confirmação de exclusão (Bootstrap Modal) ===================== -->
+    <div class="modal fade modal-in-phone" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content confirm-modal-content">
+          <div class="modal-header border-0">
+            <h5 class="modal-title">Excluir foto?</h5>
+          </div>
+          <div class="modal-body">
+            Essa ação não pode ser desfeita. Tem certeza que deseja excluir esta foto?
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Excluir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bootstrap JS (bundle inclui Popper, necessário para os Modals) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="galeria.js"></script>
+
+</body>
+
+</html>
